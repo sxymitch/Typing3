@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GalaxyIS Typing Home Row Game</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #f2f2f2;
+        padding-top: 30px;
+    }
+    #letterBox {
+        font-size: 120px;
+        background: white;
+        width: 220px;
+        padding: 30px;
+        margin: auto;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    #status {
+        font-size: 24px;
+        height: 30px;
+        margin-top: 10px;
+    }
+    #info {
+        margin-top: 20px;
+        font-size: 22px;
+    }
+    select, button {
+        padding: 12px 18px;
+        font-size: 18px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    button {
+        background: #007bff;
+        color: white;
+    }
+    button:hover {
+        background: #005fcc;
+    }
+</style>
+</head>
+<body>
+
+<h1>GalaxyIS Typing Trainer Game (Home Row)</h1>
+
+<label><b>Select Level:</b></label>
+<select id="levelSelect">
+    <option value="1000">Beginner (Slow)</option>
+    <option value="700">Intermediate</option>
+    <option value="400">Advanced (Fast)</option>
+</select>
+
+<br><br>
+
+<div id="letterBox">A</div>
+<div id="status"></div>
+
+<div id="info">
+    <p><b>Time Left:</b> <span id="time">300</span>s</p>
+    <p><b>Score:</b> <span id="score">0</span></p>
+    <p><b>Accuracy:</b> <span id="accuracy">0%</span></p>
+</div>
+
+<button onclick="startGame()">Start Game</button>
+
+<script>
+    const letters = ["a", "s", "d", "f", "j", "k", "l", ";"];
+    let currentLetter = "";
+    let timeLeft = 300; // 5 minutes
+    let score = 0;
+    let totalTyped = 0;
+    let timerInterval;
+    let running = false;
+    let speed = 1000;
+
+    function newLetter() {
+        currentLetter = letters[Math.floor(Math.random() * letters.length)];
+        document.getElementById("letterBox").textContent =
+            currentLetter === ";" ? ";" : currentLetter.toUpperCase();
+    }
+
+    function startGame() {
+        if (running) return;
+        running = true;
+
+        // Reset everything
+        timeLeft = 300; // 5 minutes
+        score = 0;
+        totalTyped = 0;
+
+        document.getElementById("time").textContent = timeLeft;
+        document.getElementById("score").textContent = score;
+        document.getElementById("accuracy").textContent = "0%";
+        document.getElementById("status").textContent = "";
+
+        speed = parseInt(document.getElementById("levelSelect").value);
+
+        newLetter();
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById("time").textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                running = false;
+                document.getElementById("status").textContent =
+                    "⏳ Time's up! Final Score: " + score;
+            }
+        }, 1000);
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (!running) return;
+
+        let keyPressed = event.key;
+
+        if (keyPressed !== ";") {
+            keyPressed = keyPressed.toLowerCase();
+        }
+
+        if (!letters.includes(keyPressed)) return;
+
+        totalTyped++;
+
+        if (keyPressed === currentLetter) {
+            score++;
+            document.getElementById("score").textContent = score;
+            document.getElementById("status").textContent = "✔ Correct!";
+            document.getElementById("status").style.color = "green";
+        } else {
+            document.getElementById("status").textContent = "✘ Wrong!";
+            document.getElementById("status").style.color = "red";
+        }
+
+        let accuracy = ((score / totalTyped) * 100).toFixed(1);
+        document.getElementById("accuracy").textContent = accuracy + "%";
+
+        setTimeout(newLetter, speed);
+    });
+</script>
+
+</body>
+</html>
